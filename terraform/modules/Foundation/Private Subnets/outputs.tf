@@ -1,8 +1,3 @@
-output "vpc_id" {
-  description = "VPC ID"
-  value       = module.foundation.vpc_id
-}
-
 output "aws_region" {
   value = var.aws_region
 }
