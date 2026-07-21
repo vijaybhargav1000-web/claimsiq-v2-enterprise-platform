@@ -12,3 +12,10 @@ module "public_subnets" {
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
+
+module "private_subnets" {
+  source = "./modules/foundation/Private Subnets"
+
+  vpc_id      = module.foundation.vpc_id
+  environment = var.environment
+}
