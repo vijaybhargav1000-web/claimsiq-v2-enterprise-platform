@@ -19,3 +19,10 @@ module "private_subnets" {
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
+
+module "internet_gateway" {
+  source = "./modules/foundation/Internet Gateway"
+
+  vpc_id      = module.foundation.vpc_id
+  environment = var.environment
+}

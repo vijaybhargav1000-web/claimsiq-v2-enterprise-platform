@@ -1,7 +1,7 @@
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "${var.project_name}-${var.environment}-terraform-state"
+resource "aws_internet_gateway" "igw" {
+  vpc_id = var.vpc_id
 
   tags = {
-    Name = "Terraform State Bucket"
+    Name = "claimsiq-${var.environment}-igw"
   }
 }

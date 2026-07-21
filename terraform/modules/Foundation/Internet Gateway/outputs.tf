@@ -1,7 +1,4 @@
-output "aws_region" {
-  value = var.aws_region
+output "internet_gateway_id" {
+  value = aws_internet_gateway.igw.id
 }
 
-output "environment" {
-  value = var.environment
-}
