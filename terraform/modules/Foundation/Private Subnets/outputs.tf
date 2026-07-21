@@ -1,7 +1,7 @@
-output "aws_region" {
-  value = var.aws_region
+output "private_subnet_1_id" {
+  value = aws_subnet.private_1.id
 }
 
-output "environment" {
-  value = var.environment
+output "private_subnet_2_id" {
+  value = aws_subnet.private_2.id
 }
