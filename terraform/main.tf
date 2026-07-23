@@ -26,3 +26,10 @@ module "internet_gateway" {
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
+module "route_tables" {
+  source = "./modules/foundation/Route Tables"
+
+  vpc_id              = module.foundation.vpc_id
+  internet_gateway_id = module.internet_gateway.internet_gateway_id
+  environment         = var.environment
+}
