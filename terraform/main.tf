@@ -32,4 +32,7 @@ module "route_tables" {
   vpc_id              = module.foundation.vpc_id
   internet_gateway_id = module.internet_gateway.internet_gateway_id
   environment         = var.environment
+
+  public_subnet_1_id = module.public_subnets.public_subnet_1_id
+  public_subnet_2_id = module.public_subnets.public_subnet_2_id
 }
