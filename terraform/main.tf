@@ -52,3 +52,10 @@ module "private_route_table" {
   private_subnet_2_id = module.private_subnets.private_subnet_2_id
   environment         = var.environment
 }
+
+module "security_groups" {
+  source = "./modules/foundation/Security Groups"
+
+  vpc_id      = module.foundation.vpc_id
+  environment = var.environment
+}
