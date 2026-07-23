@@ -59,3 +59,9 @@ module "security_groups" {
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
+
+module "iam_role" {
+  source = "./modules/compute/IAM Role"
+
+  environment = var.environment
+}
