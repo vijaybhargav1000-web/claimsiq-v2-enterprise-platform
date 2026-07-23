@@ -1,7 +1,3 @@
-output "aws_region" {
-  value = var.aws_region
-}
-
-output "environment" {
-  value = var.environment
+output "public_route_table_id" {
+  value = aws_route_table.public.id
 }
