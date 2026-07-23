@@ -65,3 +65,10 @@ module "iam_role" {
 
   environment = var.environment
 }
+
+module "instance_profile" {
+  source = "./modules/compute/instance-profile"
+
+  ec2_role_name = module.iam_role.ec2_role_name
+  environment   = var.environment
+}
