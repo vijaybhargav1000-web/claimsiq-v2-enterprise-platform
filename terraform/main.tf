@@ -41,5 +41,14 @@ module "nat_gateway" {
   source = "./modules/foundation/NAT Gateway"
 
   public_subnet_1_id = module.public_subnets.public_subnet_1_id
+  environment        = var.environment
+}
+module "private_route_table" {
+  source = "./modules/foundation/Private Route Table"
+
+  vpc_id              = module.foundation.vpc_id
+  nat_gateway_id      = module.nat_gateway.nat_gateway_id
+  private_subnet_1_id = module.private_subnets.private_subnet_1_id
+  private_subnet_2_id = module.private_subnets.private_subnet_2_id
   environment         = var.environment
 }
