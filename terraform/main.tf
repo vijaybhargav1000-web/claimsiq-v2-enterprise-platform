@@ -36,3 +36,10 @@ module "route_tables" {
   public_subnet_1_id = module.public_subnets.public_subnet_1_id
   public_subnet_2_id = module.public_subnets.public_subnet_2_id
 }
+
+module "nat_gateway" {
+  source = "./modules/foundation/NAT Gateway"
+
+  public_subnet_1_id = module.public_subnets.public_subnet_1_id
+  environment         = var.environment
+}
