@@ -91,3 +91,20 @@ module "target_group" {
 
   environment = var.environment
 }
+
+module "application_load_balancer" {
+
+  source = "./modules/Compute/application-load-balancer"
+
+  environment = var.environment
+
+  security_group_id = module.security_groups.alb_security_group_id
+
+  public_subnet_ids = [
+    module.public_subnets.public_subnet_1_id,
+    module.public_subnets.public_subnet_2_id
+  ]
+}
+
+
+
