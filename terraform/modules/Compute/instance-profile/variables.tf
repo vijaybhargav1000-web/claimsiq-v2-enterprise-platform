@@ -1,7 +1,7 @@
-variable "ec2_role_name" {
+variable "environment" {
   type = string
 }
 
-variable "environment" {
+variable "ec2_role_name" {
   type = string
 }
