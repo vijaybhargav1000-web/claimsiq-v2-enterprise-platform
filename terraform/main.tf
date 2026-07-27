@@ -72,3 +72,13 @@ module "instance_profile" {
   ec2_role_name = module.iam_role.ec2_role_name
   environment   = var.environment
 }
+module "launch_template" {
+
+  source = "./modules/compute/launch-template"
+
+  environment = var.environment
+
+  security_group_id = module.security_groups.ec2_security_group_id
+
+  instance_profile_name = module.instance_profile.instance_profile_name
+}
