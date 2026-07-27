@@ -141,3 +141,11 @@ module "s3_data_lake" {
 
 }
 
+module "glue_catalog" {
+
+  source = "./modules/Analytics/glue-catalog"
+
+  environment = var.environment
+
+}
+
