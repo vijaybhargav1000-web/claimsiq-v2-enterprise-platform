@@ -133,3 +133,11 @@ module "auto_scaling_group" {
 
 }
 
+module "s3_data_lake" {
+
+  source = "./modules/Storage/s3-data-lake"
+
+  environment = var.environment
+
+}
+
