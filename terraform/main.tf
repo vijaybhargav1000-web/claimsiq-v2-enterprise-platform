@@ -106,5 +106,13 @@ module "application_load_balancer" {
   ]
 }
 
+module "alb_listener" {
 
+  source = "./modules/Compute/alb-listener"
+
+  load_balancer_arn = module.application_load_balancer.alb_arn
+
+  target_group_arn = module.target_group.target_group_arn
+
+}
 
