@@ -82,3 +82,12 @@ module "launch_template" {
 
   instance_profile_name = module.instance_profile.instance_profile_name
 }
+
+module "target_group" {
+
+  source = "./modules/compute/target-group"
+
+  vpc_id = module.foundation.vpc_id
+
+  environment = var.environment
+}

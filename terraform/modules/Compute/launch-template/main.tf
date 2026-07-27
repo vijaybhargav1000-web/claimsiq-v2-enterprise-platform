@@ -1,3 +1,14 @@
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+
+  owners = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+}
+
 resource "aws_launch_template" "main" {
 
   name_prefix = "claimsiq-${var.environment}-lt-"
@@ -15,7 +26,6 @@ resource "aws_launch_template" "main" {
   }
 
   block_device_mappings {
-
     device_name = "/dev/xvda"
 
     ebs {
@@ -27,22 +37,11 @@ resource "aws_launch_template" "main" {
   }
 
   tag_specifications {
-
     resource_type = "instance"
 
     tags = {
       Name        = "claimsiq-${var.environment}-ec2"
       Environment = var.environment
     }
-  }
-}
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-
-  owners = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["al2023-ami-*-x86_64"]
   }
 }
