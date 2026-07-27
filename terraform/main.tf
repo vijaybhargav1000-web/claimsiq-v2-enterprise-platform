@@ -116,3 +116,20 @@ module "alb_listener" {
 
 }
 
+module "auto_scaling_group" {
+
+  source = "./modules/Compute/auto-scaling-group"
+
+  environment = var.environment
+
+  launch_template_id = module.launch_template.launch_template_id
+
+  target_group_arn = module.target_group.target_group_arn
+
+  private_subnet_ids = [
+    module.private_subnets.private_subnet_1_id,
+    module.private_subnets.private_subnet_2_id
+  ]
+
+}
+
