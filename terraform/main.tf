@@ -149,3 +149,15 @@ module "glue_catalog" {
 
 }
 
+module "glue_crawler" {
+
+  source = "./modules/Analytics/glue-crawler"
+
+  environment = var.environment
+
+  glue_database_name = module.glue_catalog.glue_database_name
+
+  bronze_bucket = module.s3_data_lake.bronze_bucket
+
+}
+
