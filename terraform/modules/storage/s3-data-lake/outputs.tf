@@ -13,3 +13,11 @@ output "gold_bucket" {
 output "scripts_bucket" {
   value = aws_s3_bucket.scripts.bucket
 }
+
+resource "aws_s3_bucket" "athena_results" {
+  bucket = "claimsiq-${var.environment}-athena-results"
+}
+
+output "athena_results_bucket" {
+  value = aws_s3_bucket.athena_results.bucket
+}

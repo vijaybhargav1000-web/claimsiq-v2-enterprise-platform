@@ -171,3 +171,11 @@ module "glue_etl_job" {
 
   scripts_bucket = module.s3_data_lake.scripts_bucket
 }
+
+module "athena" {
+
+  source = "./modules/analytics/athena"
+
+  environment    = var.environment
+  results_bucket = module.s3_data_lake.athena_results_bucket
+}
