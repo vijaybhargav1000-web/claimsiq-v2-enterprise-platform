@@ -161,3 +161,13 @@ module "glue_crawler" {
 
 }
 
+module "glue_etl_job" {
+
+  source = "./modules/Analytics/glue-etl-job"
+
+  environment = var.environment
+
+  glue_role_arn = module.glue_crawler.glue_role_arn
+
+  scripts_bucket = module.s3_data_lake.scripts_bucket
+}
