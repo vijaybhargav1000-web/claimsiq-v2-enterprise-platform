@@ -179,3 +179,10 @@ module "athena" {
   environment    = var.environment
   results_bucket = module.s3_data_lake.athena_results_bucket
 }
+module "cloudwatch" {
+
+  source = "./modules/monitoring/cloudwatch"
+
+  environment = var.environment
+
+}
