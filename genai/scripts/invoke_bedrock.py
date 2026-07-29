@@ -10,44 +10,74 @@ bedrock = boto3.client(
     region_name=REGION
 )
 
-with open("../prompts/claim_analysis.txt", "r", encoding="utf-8") as file:
-    prompt = file.read()
+with open("../data/claim.json", "r", encoding="utf-8") as f:
+    claim = json.load(f)
 
-request_body = {
-    "messages": [
-        {
-            "role": "user",
-            "content": [
-                {
-                    "text": prompt
-                }
-            ]
-        }
-    ]
-}
+prompt = f"""
+You are an experienced Insurance Claims Analyst.
+
+Analyse the following insurance claim.
+
+Claim Details
+
+Claim ID: {claim['claim_id']}
+Customer Name: {claim['customer_name']}
+Policy Number: {claim['policy_number']}
+Policy Type: {claim['policy_type']}
+Incident Date: {claim['incident_date']}
+Location: {claim['incident_location']}
+Incident: {claim['incident']}
+Estimated Damage: ${claim['estimated_damage']}
+Driver Injury: {claim['driver_injury']}
+Police Report: {claim['police_report']}
+Vehicle: {claim['vehicle_model']}
+Claim Status: {claim['claim_status']}
+
+Provide:
+
+1. Claim Summary
+
+2. Risk Level
+
+3. Fraud Indicators
+
+4. Missing Information
+
+5. Recommended Next Action
+"""
 
 try:
+
     response = bedrock.converse(
         modelId=MODEL_ID,
-        messages=request_body["messages"]
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
     )
 
     output = response["output"]["message"]["content"][0]["text"]
 
-    print("\n========== AI RESPONSE ==========\n")
     print(output)
 
-    with open("../responses/sample_response.json", "w", encoding="utf-8") as file:
+    with open("../responses/analysis.json", "w", encoding="utf-8") as f:
+
         json.dump(
             {
-                "model": MODEL_ID,
-                "response": output
+                "claim_id": claim["claim_id"],
+                "analysis": output
             },
-            file,
+            f,
             indent=4
         )
 
-    print("\nResponse saved successfully.")
+    print("\nAnalysis saved successfully.")
 
-except ClientError as error:
-    print(error)
+except ClientError as e:
+    print(e)
