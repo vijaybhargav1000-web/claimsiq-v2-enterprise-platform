@@ -1,45 +1,51 @@
 resource "aws_s3_bucket" "bronze" {
 
-  bucket = "claimsiq-${var.environment}-bronze"
+  bucket = "claimsiq-v2-dev-bronze-2026"
 
   tags = {
-    Name = "Bronze"
+    Name        = "Bronze"
     Environment = var.environment
   }
-
 }
 
 resource "aws_s3_bucket" "silver" {
 
-  bucket = "claimsiq-${var.environment}-silver"
+  bucket = "claimsiq-v2-dev-silver-2026"
 
   tags = {
-    Name = "Silver"
+    Name        = "Silver"
     Environment = var.environment
   }
-
 }
 
 resource "aws_s3_bucket" "gold" {
 
-  bucket = "claimsiq-${var.environment}-gold"
+  bucket = "claimsiq-v2-dev-gold-2026"
 
   tags = {
-    Name = "Gold"
+    Name        = "Gold"
     Environment = var.environment
   }
-
 }
 
 resource "aws_s3_bucket" "scripts" {
 
-  bucket = "claimsiq-${var.environment}-scripts"
+  bucket = "claimsiq-v2-dev-scripts-2026"
 
   tags = {
-    Name = "Scripts"
+    Name        = "Scripts"
     Environment = var.environment
   }
+}
 
+resource "aws_s3_bucket" "athena_results" {
+
+  bucket = "claimsiq-v2-dev-athena-results-2026"
+
+  tags = {
+    Name        = "Athena Results"
+    Environment = var.environment
+  }
 }
 
 resource "aws_s3_bucket_versioning" "bronze" {
@@ -49,7 +55,6 @@ resource "aws_s3_bucket_versioning" "bronze" {
   versioning_configuration {
     status = "Enabled"
   }
-
 }
 
 resource "aws_s3_bucket_versioning" "silver" {
@@ -59,7 +64,6 @@ resource "aws_s3_bucket_versioning" "silver" {
   versioning_configuration {
     status = "Enabled"
   }
-
 }
 
 resource "aws_s3_bucket_versioning" "gold" {
@@ -69,7 +73,6 @@ resource "aws_s3_bucket_versioning" "gold" {
   versioning_configuration {
     status = "Enabled"
   }
-
 }
 
 resource "aws_s3_bucket_versioning" "scripts" {
@@ -79,7 +82,6 @@ resource "aws_s3_bucket_versioning" "scripts" {
   versioning_configuration {
     status = "Enabled"
   }
-
 }
 
 resource "aws_s3_bucket_public_access_block" "bronze" {
@@ -90,5 +92,4 @@ resource "aws_s3_bucket_public_access_block" "bronze" {
   ignore_public_acls      = true
   block_public_policy     = true
   restrict_public_buckets = true
-
 }

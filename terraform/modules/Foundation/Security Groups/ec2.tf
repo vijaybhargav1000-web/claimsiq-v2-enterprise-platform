@@ -1,6 +1,6 @@
 resource "aws_security_group" "ec2_sg" {
-  name        = "claimsiq-${var.environment}-ec2-sg"
-  description = "Application EC2 Security Group"
+  name        = "claimsiq-v2-ec2-sg"
+  description = "Security group for ClaimsIQ EC2 application server "
   vpc_id      = var.vpc_id
 
   ingress {
@@ -11,10 +11,11 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Replace with your IP
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    cidr_blocks     = ["157.50.107.186/32"]
+    prefix_list_ids = ["pl-0fa83cebf909345ca"]
   }
 
   egress {
@@ -25,7 +26,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   tags = {
-    Name        = "claimsiq-${var.environment}-ec2-sg"
+    Name        = "claimsiq-v2-ec2-sg"
     Environment = var.environment
   }
 }

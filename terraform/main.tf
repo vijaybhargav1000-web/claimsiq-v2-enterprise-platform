@@ -40,8 +40,8 @@ module "route_tables" {
 module "nat_gateway" {
   source = "./modules/foundation/NAT Gateway"
 
-  public_subnet_1_id = module.public_subnets.public_subnet_1_id
-  environment        = var.environment
+  vpc_id      = module.foundation.vpc_id
+  environment = var.environment
 }
 module "private_route_table" {
   source = "./modules/foundation/Private Route Table"

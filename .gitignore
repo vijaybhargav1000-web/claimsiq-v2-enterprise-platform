@@ -22,3 +22,13 @@ Thumbs.db
 
 # Environment
 .env
+
+# Terraform generated plans
+*.tfplan
+*.plan
+
+# Terraform investigation / temporary files
+current-old-state.json
+listener.json
+provider-schema.json
+plan-review.txt

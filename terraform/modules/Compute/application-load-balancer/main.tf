@@ -1,6 +1,6 @@
 resource "aws_lb" "main" {
 
-  name = "claimsiq-${var.environment}-alb"
+ name = "claimsiq-v2-alb"
 
   internal = false
 
@@ -15,7 +15,7 @@ resource "aws_lb" "main" {
   enable_deletion_protection = false
 
   tags = {
-    Name        = "claimsiq-${var.environment}-alb"
+   name = "claimsiq-v2-alb"
     Environment = var.environment
   }
 }

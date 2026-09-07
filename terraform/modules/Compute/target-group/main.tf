@@ -1,8 +1,8 @@
 resource "aws_lb_target_group" "main" {
 
-  name = "claimsiq-${var.environment}-tg"
+  name = "claimsiq-v2-tg"
 
-  port = 80
+  port     = 80
   protocol = "HTTP"
 
   vpc_id = var.vpc_id
@@ -23,13 +23,13 @@ resource "aws_lb_target_group" "main" {
 
     timeout = 5
 
-    healthy_threshold = 2
+    healthy_threshold = 5
 
     unhealthy_threshold = 2
   }
 
   tags = {
-    Name        = "claimsiq-${var.environment}-tg"
+    Name        = "claimsiq-v2-tg"
     Environment = var.environment
   }
 }
