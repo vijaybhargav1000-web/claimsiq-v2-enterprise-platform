@@ -1,0 +1,19 @@
+Claims Processing Workflow
+
+Step 1
+Receive claim.
+
+Step 2
+Validate policy.
+
+Step 3
+Verify uploaded documents.
+
+Step 4
+Calculate fraud score.
+
+Step 5
+Assign claim adjuster.
+
+Step 6
+Approve or Reject claim.

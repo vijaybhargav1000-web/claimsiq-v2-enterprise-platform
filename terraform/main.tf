@@ -159,6 +159,8 @@ module "glue_crawler" {
 
   bronze_bucket = module.s3_data_lake.bronze_bucket
 
+  silver_bucket = module.s3_data_lake.silver_bucket
+
 }
 
 module "glue_etl_job" {

@@ -9,3 +9,6 @@ variable "glue_database_name" {
 variable "bronze_bucket" {
   type = string
 }
+variable "silver_bucket" {
+  type = string
+}

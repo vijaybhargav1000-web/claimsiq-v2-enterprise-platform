@@ -1,0 +1,13 @@
+ClaimsIQ Insurance Policy
+
+1. Every customer must have an active insurance policy.
+
+2. Claims above ₹500000 require senior approval.
+
+3. Vehicle theft claims require a police FIR.
+
+4. Accident claims require photos of the damaged vehicle.
+
+5. Claim processing SLA is 7 business days.
+
+6. Claims submitted after 90 days are automatically rejected unless exceptional approval is granted.

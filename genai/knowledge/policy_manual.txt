@@ -1,0 +1,45 @@
+ClaimsIQ Insurance Policy Manual
+
+Motor Insurance Policy
+
+Policy Number Format:
+POLXXXXXX
+
+Coverage:
+
+1. Rear-end collision
+Covered
+
+2. Flood damage
+Covered only if Comprehensive Policy is active.
+
+3. Vehicle Theft
+Covered after FIR verification.
+
+4. Fire Damage
+Covered
+
+5. Engine Failure
+Not Covered
+
+Fraud Rules
+
+A fraud score above 70 requires manual investigation.
+
+Claims above $15,000 require supervisor approval.
+
+Police report is mandatory for:
+
+- Theft
+- Major Accident
+- Fire
+
+Deductible
+
+Motor Policy
+
+First $500 paid by customer.
+
+Maximum claim amount:
+
+$100,000

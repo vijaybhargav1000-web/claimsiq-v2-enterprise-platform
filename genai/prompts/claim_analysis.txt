@@ -1,0 +1,17 @@
+You are an experienced insurance claims analyst.
+
+Analyse the insurance claim below and provide:
+
+1. Claim Summary
+2. Risk Assessment (Low, Medium or High)
+3. Missing Information
+4. Recommendation
+
+Claim Details:
+
+Customer Name: John Smith
+Policy Type: Motor Insurance
+Incident: Rear-end collision at traffic signal
+Estimated Damage: $3,500
+Police Report: Available
+Driver Injury: No

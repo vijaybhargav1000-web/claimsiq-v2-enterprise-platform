@@ -1,0 +1,37 @@
+ClaimsIQ Claim Processing Guide
+
+Claim Status Flow
+
+Submitted
+
+↓
+
+Under Review
+
+↓
+
+Approved
+
+↓
+
+Paid
+
+Documents Required
+
+Driving Licence
+
+Insurance Policy
+
+Police Report (if applicable)
+
+Repair Estimate
+
+Vehicle Photographs
+
+Supervisor Approval
+
+Mandatory when:
+
+Claim amount exceeds $15,000
+
+Fraud score exceeds 70

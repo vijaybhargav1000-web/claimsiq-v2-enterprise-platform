@@ -1,0 +1,20 @@
+Fraud Detection Guidelines
+
+A claim is considered high risk if:
+
+• Multiple claims within 30 days
+• Suspicious repair bills
+• Fake documents
+• Modified invoices
+• Customer already under investigation
+
+Recommended action:
+
+Risk Score below 40
+Approve
+
+Risk Score 40-70
+Manual Review
+
+Risk Score above 70
+Fraud Investigation Team

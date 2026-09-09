@@ -4,7 +4,7 @@ resource "aws_glue_job" "bronze_to_silver" {
   name     = "claimsiq-${var.environment}-bronze-to-silver"
   role_arn = var.glue_role_arn
 
-  glue_version = "4.0"
+  glue_version = "5.1"
 
   command {
     name            = "glueetl"

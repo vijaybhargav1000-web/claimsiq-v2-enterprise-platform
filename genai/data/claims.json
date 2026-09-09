@@ -1,0 +1,44 @@
+[
+    {
+        "claim_id": "CLM10001",
+        "customer_name": "John Smith",
+        "policy_number": "POL123456",
+        "policy_type": "Motor Insurance",
+        "incident_date": "2026-07-20",
+        "incident_location": "Hyderabad",
+        "incident": "Rear-end collision at traffic signal",
+        "estimated_damage": 3500,
+        "driver_injury": "No",
+        "police_report": "Available",
+        "vehicle_model": "Toyota Fortuner",
+        "claim_status": "Submitted"
+    },
+    {
+        "claim_id": "CLM10002",
+        "customer_name": "Alice Brown",
+        "policy_number": "POL223344",
+        "policy_type": "Motor Insurance",
+        "incident_date": "2026-07-18",
+        "incident_location": "Bengaluru",
+        "incident": "Vehicle stolen from parking lot",
+        "estimated_damage": 18000,
+        "driver_injury": "No",
+        "police_report": "Available",
+        "vehicle_model": "Hyundai Creta",
+        "claim_status": "Submitted"
+    },
+    {
+        "claim_id": "CLM10003",
+        "customer_name": "Rahul Kumar",
+        "policy_number": "POL998877",
+        "policy_type": "Motor Insurance",
+        "incident_date": "2026-07-15",
+        "incident_location": "Chennai",
+        "incident": "Flood damage after heavy rain",
+        "estimated_damage": 9500,
+        "driver_injury": "No",
+        "police_report": "Pending",
+        "vehicle_model": "Mahindra XUV700",
+        "claim_status": "Submitted"
+    }
+]
