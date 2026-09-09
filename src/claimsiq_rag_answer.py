@@ -1,7 +1,9 @@
+import sys
+
 import boto3
 from sentence_transformers import SentenceTransformer
 from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
-from transformers import AutoTokenizer, AutoModelForCausalLM
+
 
 # ============================================================
 # ClaimsIQ Configuration
@@ -12,294 +14,424 @@ AOSS_HOST = "316zxmoi289705x59odi.ap-south-1.aoss.amazonaws.com"
 INDEX_NAME = "claimsiq-rag-index"
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-GENERATION_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
-
-QUESTION = "Find high priority health claims under review"
 
 
 # ============================================================
-# 1. Load embedding model
+# Cached application resources
 # ============================================================
 
-print("Loading embedding model...")
-
-embedding_model = SentenceTransformer(EMBEDDING_MODEL)
-
-
-# ============================================================
-# 2. Create query embedding
-# ============================================================
-
-query_vector = embedding_model.encode(QUESTION).tolist()
-
-print("Query vector dimensions:", len(query_vector))
+_embedding_model = None
+_opensearch_client = None
 
 
-# ============================================================
-# 3. Connect to OpenSearch Serverless
-# ============================================================
+def get_embedding_model():
+    """
+    Load the embedding model once and reuse it.
+    """
 
-print("Connecting to OpenSearch Serverless...")
+    global _embedding_model
 
-credentials = boto3.Session().get_credentials()
+    if _embedding_model is None:
+        _embedding_model = SentenceTransformer(
+            EMBEDDING_MODEL
+        )
 
-auth = AWSV4SignerAuth(
-    credentials,
-    REGION,
-    "aoss"
-)
-
-client = OpenSearch(
-    hosts=[{"host": AOSS_HOST, "port": 443}],
-    http_auth=auth,
-    use_ssl=True,
-    verify_certs=True,
-    connection_class=RequestsHttpConnection,
-)
+    return _embedding_model
 
 
-# ============================================================
-# 4. Semantic retrieval
-# ============================================================
+def get_opensearch_client():
+    """
+    Create the authenticated OpenSearch Serverless
+    client once and reuse it.
+    """
 
-print("Searching ClaimsIQ knowledge...")
+    global _opensearch_client
 
-response = client.search(
-    index=INDEX_NAME,
-    body={
-        "size": 5,
-        "_source": [
-            "claim_id",
-            "claim_text",
-            "claim_type",
-            "region",
-            "risk_level",
-            "processing_priority"
-        ],
-        "query": {
-            "knn": {
-                "embedding": {
-                    "vector": query_vector,
-                    "k": 5
+    if _opensearch_client is None:
+
+        credentials = boto3.Session().get_credentials()
+
+        if credentials is None:
+            raise RuntimeError(
+                "AWS credentials were not found."
+            )
+
+        auth = AWSV4SignerAuth(
+            credentials,
+            REGION,
+            "aoss"
+        )
+
+        _opensearch_client = OpenSearch(
+            hosts=[
+                {
+                    "host": AOSS_HOST,
+                    "port": 443
                 }
-            }
-        }
+            ],
+            http_auth=auth,
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection,
+        )
+
+    return _opensearch_client
+
+
+# ============================================================
+# Business filter parser
+# ============================================================
+
+def parse_business_filters(question):
+    """
+    Convert supported natural-language business criteria
+    into deterministic structured filters.
+    """
+
+    text = question.upper()
+
+    filters = {
+        "claim_type": None,
+        "risk_level": None,
+        "processing_priority": None,
+        "status": None,
+        "region": None,
     }
-)
 
-hits = response["hits"]["hits"]
+    # --------------------------------------------------------
+    # Claim type
+    # --------------------------------------------------------
 
-print("Retrieved claims:", len(hits))
+    claim_types = [
+        "HEALTH",
+        "AUTO",
+        "HOME",
+        "TRAVEL",
+    ]
+
+    for claim_type in claim_types:
+
+        if claim_type in text:
+            filters["claim_type"] = claim_type
+            break
+
+    # --------------------------------------------------------
+    # Risk level
+    # --------------------------------------------------------
+
+    if "HIGH RISK" in text:
+
+        filters["risk_level"] = "HIGH"
+
+    elif "MEDIUM RISK" in text:
+
+        filters["risk_level"] = "MEDIUM"
+
+    elif "LOW RISK" in text:
+
+        filters["risk_level"] = "LOW"
+
+    # --------------------------------------------------------
+    # Processing priority
+    # --------------------------------------------------------
+
+    if "HIGH PRIORITY" in text:
+
+        filters["processing_priority"] = "HIGH"
+
+    elif "MEDIUM PRIORITY" in text:
+
+        filters["processing_priority"] = "MEDIUM"
+
+    elif "LOW PRIORITY" in text:
+
+        filters["processing_priority"] = "LOW"
+
+    # --------------------------------------------------------
+    # Status
+    # --------------------------------------------------------
+
+    if (
+        "UNDER REVIEW" in text
+        or "UNDER_REVIEW" in text
+    ):
+
+        filters["status"] = "UNDER_REVIEW"
+
+    # --------------------------------------------------------
+    # Region
+    # --------------------------------------------------------
+
+    regions = [
+        "IN-SOUTH",
+        "IN-WEST",
+        "IN-NORTH",
+        "IN-EAST",
+    ]
+
+    for region in regions:
+
+        if region in text:
+            filters["region"] = region
+            break
+
+    return filters
 
 
 # ============================================================
-# 5. Business-rule validation
+# Deterministic claim matching
 # ============================================================
 
-matching_claims = []
+def matches_business_filters(claim, filters):
+    """
+    Apply deterministic business rules to a retrieved claim.
+    """
 
-for hit in hits:
+    claim_type = str(
+        claim.get("claim_type", "")
+    ).upper()
 
-    claim = hit["_source"]
+    risk_level = str(
+        claim.get("risk_level", "")
+    ).upper()
 
-    claim_type = str(claim.get("claim_type", "")).upper()
     processing_priority = str(
         claim.get("processing_priority", "")
     ).upper()
 
-    claim_text = str(
-        claim.get("claim_text", "")
+    status = str(
+        claim.get("status", "")
     ).upper()
 
-    # The current question requires:
-    # HEALTH + UNDER_REVIEW + HIGH priority
+    region = str(
+        claim.get("region", "")
+    ).upper()
 
-    is_health = claim_type == "HEALTH"
-    is_high_priority = processing_priority == "HIGH"
-    is_under_review = "UNDER_REVIEW" in claim_text
+    if (
+        filters["claim_type"] is not None
+        and claim_type != filters["claim_type"]
+    ):
+        return False
 
-    if is_health and is_under_review and is_high_priority:
-        matching_claims.append(claim)
+    if (
+        filters["risk_level"] is not None
+        and risk_level != filters["risk_level"]
+    ):
+        return False
+
+    if (
+        filters["processing_priority"] is not None
+        and processing_priority
+        != filters["processing_priority"]
+    ):
+        return False
+
+    if (
+        filters["status"] is not None
+        and status != filters["status"]
+    ):
+        return False
+
+    if (
+        filters["region"] is not None
+        and region != filters["region"]
+    ):
+        return False
+
+    return True
 
 
 # ============================================================
-# 6. Display validation result
+# ClaimsIQ RAG engine
 # ============================================================
 
-print("\n" + "=" * 70)
-print("BUSINESS RULE VALIDATION")
-print("=" * 70)
+def ask_claimsiq(question):
+    """
+    Execute the ClaimsIQ retrieval and deterministic
+    business-rule validation pipeline.
 
-print("Required claim type: HEALTH")
-print("Required status: UNDER_REVIEW")
-print("Required priority: HIGH")
+    Returns a structured response suitable for an API/UI.
+    """
 
-print("\nMatching claims:", len(matching_claims))
+    if not isinstance(question, str):
+        raise ValueError(
+            "Question must be a string."
+        )
 
-for claim in matching_claims:
+    question = question.strip()
 
-    print(
-        f'{claim["claim_id"]} | '
-        f'{claim["claim_type"]} | '
-        f'{claim["region"]} | '
-        f'Risk={claim["risk_level"]} | '
-        f'Priority={claim["processing_priority"]}'
+    if not question:
+        raise ValueError(
+            "Question cannot be empty."
+        )
+
+    # --------------------------------------------------------
+    # 1. Interpret business filters
+    # --------------------------------------------------------
+
+    filters = parse_business_filters(question)
+
+    # --------------------------------------------------------
+    # 2. Generate query embedding
+    # --------------------------------------------------------
+
+    embedding_model = get_embedding_model()
+
+    query_vector = embedding_model.encode(
+        question
+    ).tolist()
+
+    if len(query_vector) != 384:
+        raise RuntimeError(
+            "Unexpected embedding dimensions: "
+            f"{len(query_vector)}"
+        )
+
+    # --------------------------------------------------------
+    # 3. Retrieve semantically relevant claims
+    # --------------------------------------------------------
+
+    client = get_opensearch_client()
+
+    response = client.search(
+        index=INDEX_NAME,
+        body={
+            "size": 5,
+            "_source": [
+                "claim_id",
+                "claim_text",
+                "claim_type",
+                "region",
+                "risk_level",
+                "processing_priority",
+                "status",
+            ],
+            "query": {
+                "knn": {
+                    "embedding": {
+                        "vector": query_vector,
+                        "k": 5,
+                    }
+                }
+            },
+        },
     )
 
+    hits = response["hits"]["hits"]
 
-# ============================================================
-# 7. Build verified context for the LLM
-# ============================================================
+    # --------------------------------------------------------
+    # 4. Deterministic business validation
+    # --------------------------------------------------------
 
-if matching_claims:
+    matching_claims = []
 
-    context_parts = []
+    for hit in hits:
 
-    for claim in matching_claims:
+        claim = hit["_source"]
 
-        context_parts.append(
-            f"""
-Claim ID: {claim["claim_id"]}
-Claim Type: {claim["claim_type"]}
-Region: {claim["region"]}
-Risk Level: {claim["risk_level"]}
-Processing Priority: {claim["processing_priority"]}
-Details: {claim["claim_text"]}
-"""
+        if matches_business_filters(
+            claim,
+            filters
+        ):
+            matching_claims.append(claim)
+
+    # --------------------------------------------------------
+    # 5. Build authoritative answer
+    # --------------------------------------------------------
+
+    if matching_claims:
+
+        answer = (
+            f"Found {len(matching_claims)} "
+            "matching claims."
         )
 
-    verified_context = "\n".join(context_parts)
+    else:
 
-else:
-
-    verified_context = "No claims matched the requested criteria."
-
-
-# ============================================================
-# 8. Build generation prompt
-# ============================================================
-
-prompt = f"""
-You are the ClaimsIQ insurance claims assistant.
-
-Answer the user's question using ONLY the verified claims below.
-
-Do not invent facts.
-Do not add claims that are not listed.
-Do not remove matching claims.
-
-User question:
-{QUESTION}
-
-Verified matching claims:
-{verified_context}
-
-Give a concise business answer.
-Mention every matching Claim ID and briefly explain why it matches.
-"""
-
-
-# ============================================================
-# 9. Load Qwen generation model
-# ============================================================
-
-print("\nLoading generation model...")
-
-tokenizer = AutoTokenizer.from_pretrained(
-    GENERATION_MODEL
-)
-
-model = AutoModelForCausalLM.from_pretrained(
-    GENERATION_MODEL
-)
-
-
-# ============================================================
-# 10. Create Qwen chat messages
-# ============================================================
-
-messages = [
-    {
-        "role": "system",
-        "content": (
-            "You are a precise ClaimsIQ insurance assistant. "
-            "Only use verified information provided to you."
+        answer = (
+            "No claims matched the interpreted "
+            "business criteria."
         )
-    },
-    {
-        "role": "user",
-        "content": prompt
+
+    # --------------------------------------------------------
+    # 6. Return structured result
+    # --------------------------------------------------------
+
+    return {
+        "question": question,
+        "filters": filters,
+        "retrieved_count": len(hits),
+        "matching_count": len(matching_claims),
+        "answer": answer,
+        "claims": matching_claims,
+        "llm_narrative": None,
+        "source_of_truth": (
+            "deterministic_business_rules"
+        ),
     }
-]
 
 
 # ============================================================
-# 11. Tokenize using Qwen chat template
+# CLI mode
+#
+# This preserves the ability to run the script directly
+# while preventing execution during import.
 # ============================================================
 
-inputs = tokenizer.apply_chat_template(
-    messages,
-    add_generation_prompt=True,
-    tokenize=True,
-    return_dict=True,
-    return_tensors="pt"
-)
+if __name__ == "__main__":
 
+    if len(sys.argv) > 1:
 
-# ============================================================
-# 12. Generate answer
-# ============================================================
+        question = " ".join(
+            sys.argv[1:]
+        ).strip()
 
-print("Generating answer...")
+    else:
 
-outputs = model.generate(
-    **inputs,
-    max_new_tokens=200,
-    do_sample=False
-)
+        question = input(
+            "ClaimsIQ question: "
+        ).strip()
 
+    result = ask_claimsiq(question)
 
-# ============================================================
-# 13. Decode only newly generated tokens
-# ============================================================
+    print("\n" + "=" * 70)
+    print("CLAIMSIQ VERIFIED BUSINESS ANSWER")
+    print("=" * 70)
 
-generated_tokens = outputs[
-    0
-][
-    inputs["input_ids"].shape[-1]:
-]
-
-answer = tokenizer.decode(
-    generated_tokens,
-    skip_special_tokens=True
-)
-
-
-# ============================================================
-# 14. Final answer
-# ============================================================
-
-print("\n" + "=" * 70)
-print("CLAIMSIQ RAG ANSWER")
-print("=" * 70)
-
-print(answer)
-
-
-# ============================================================
-# 15. Retrieved source records
-# ============================================================
-
-print("\n" + "=" * 70)
-print("VERIFIED SOURCES")
-print("=" * 70)
-
-for claim in matching_claims:
+    print(result["answer"])
 
     print(
-        f'{claim["claim_id"]} | '
-        f'{claim["claim_type"]} | '
-        f'{claim["region"]} | '
-        f'Risk={claim["risk_level"]} | '
-        f'Priority={claim["processing_priority"]}'
+        "\nQuery interpretation:"
     )
+
+    for key, value in result["filters"].items():
+
+        print(
+            f"{key}: "
+            f"{value or 'ANY'}"
+        )
+
+    print(
+        "\nRetrieved claims:",
+        result["retrieved_count"]
+    )
+
+    print(
+        "Matching claims:",
+        result["matching_count"]
+    )
+
+    print(
+        "\nVerified sources:"
+    )
+
+    for claim in result["claims"]:
+
+        print(
+            f'- {claim["claim_id"]} | '
+            f'{claim["claim_type"]} | '
+            f'{claim["region"]} | '
+            f'Risk={claim["risk_level"]} | '
+            f'Priority={claim["processing_priority"]} | '
+            f'Status={claim["status"]}'
+        )
