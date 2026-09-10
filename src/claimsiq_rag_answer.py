@@ -2,18 +2,18 @@ import sys
 
 import boto3
 from sentence_transformers import SentenceTransformer
-from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
+from opensearchpy import (
+    OpenSearch,
+    RequestsHttpConnection,
+    AWSV4SignerAuth,
+)
 
-
-# ============================================================
-# ClaimsIQ Configuration
-# ============================================================
-
-REGION = "ap-south-1"
-AOSS_HOST = "316zxmoi289705x59odi.ap-south-1.aoss.amazonaws.com"
-INDEX_NAME = "claimsiq-rag-index"
-
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+from config.settings import (
+    AWS_REGION,
+    AOSS_HOST,
+    AOSS_INDEX_NAME,
+    EMBEDDING_MODEL,
+)
 
 
 # ============================================================
@@ -32,6 +32,7 @@ def get_embedding_model():
     global _embedding_model
 
     if _embedding_model is None:
+
         _embedding_model = SentenceTransformer(
             EMBEDDING_MODEL
         )
@@ -58,15 +59,15 @@ def get_opensearch_client():
 
         auth = AWSV4SignerAuth(
             credentials,
-            REGION,
-            "aoss"
+            AWS_REGION,
+            "aoss",
         )
 
         _opensearch_client = OpenSearch(
             hosts=[
                 {
                     "host": AOSS_HOST,
-                    "port": 443
+                    "port": 443,
                 }
             ],
             http_auth=auth,
@@ -269,7 +270,9 @@ def ask_claimsiq(question):
     # 1. Interpret business filters
     # --------------------------------------------------------
 
-    filters = parse_business_filters(question)
+    filters = parse_business_filters(
+        question
+    )
 
     # --------------------------------------------------------
     # 2. Generate query embedding
@@ -294,7 +297,7 @@ def ask_claimsiq(question):
     client = get_opensearch_client()
 
     response = client.search(
-        index=INDEX_NAME,
+        index=AOSS_INDEX_NAME,
         body={
             "size": 5,
             "_source": [
@@ -331,9 +334,11 @@ def ask_claimsiq(question):
 
         if matches_business_filters(
             claim,
-            filters
+            filters,
         ):
-            matching_claims.append(claim)
+            matching_claims.append(
+                claim
+            )
 
     # --------------------------------------------------------
     # 5. Build authoritative answer
@@ -374,8 +379,8 @@ def ask_claimsiq(question):
 # ============================================================
 # CLI mode
 #
-# This preserves the ability to run the script directly
-# while preventing execution during import.
+# Preserve direct execution while preventing execution
+# when this module is imported by FastAPI.
 # ============================================================
 
 if __name__ == "__main__":
@@ -392,13 +397,19 @@ if __name__ == "__main__":
             "ClaimsIQ question: "
         ).strip()
 
-    result = ask_claimsiq(question)
+    result = ask_claimsiq(
+        question
+    )
 
     print("\n" + "=" * 70)
-    print("CLAIMSIQ VERIFIED BUSINESS ANSWER")
+    print(
+        "CLAIMSIQ VERIFIED BUSINESS ANSWER"
+    )
     print("=" * 70)
 
-    print(result["answer"])
+    print(
+        result["answer"]
+    )
 
     print(
         "\nQuery interpretation:"
@@ -413,12 +424,12 @@ if __name__ == "__main__":
 
     print(
         "\nRetrieved claims:",
-        result["retrieved_count"]
+        result["retrieved_count"],
     )
 
     print(
         "Matching claims:",
-        result["matching_count"]
+        result["matching_count"],
     )
 
     print(
