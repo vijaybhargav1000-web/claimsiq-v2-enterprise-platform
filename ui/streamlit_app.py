@@ -1,3 +1,5 @@
+﻿import os
+
 import requests
 import streamlit as st
 
@@ -6,7 +8,10 @@ import streamlit as st
 # ClaimsIQ Configuration
 # ============================================================
 
-API_URL = "http://127.0.0.1:8000/ask"
+API_URL = os.getenv(
+    "CLAIMSIQ_API_URL",
+    "http://127.0.0.1:8000/ask",
+)
 
 
 # ============================================================
@@ -247,7 +252,7 @@ if st.button("Ask", type="primary"):
                 # ============================================
 
                 st.subheader(
-                    "🔐 Source of Truth"
+                    "ðŸ” Source of Truth"
                 )
 
                 st.info(

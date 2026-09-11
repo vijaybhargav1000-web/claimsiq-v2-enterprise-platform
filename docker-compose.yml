@@ -1,4 +1,4 @@
-version: "3.9"
+
 
 services:
 
@@ -15,5 +15,7 @@ services:
       dockerfile: docker/Dockerfile.ui
     ports:
       - "8501:8501"
+    environment:
+      CLAIMSIQ_API_URL: "http://api:8000/ask"
     depends_on:
       - api
