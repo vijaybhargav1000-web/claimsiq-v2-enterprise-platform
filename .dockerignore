@@ -1,0 +1,13 @@
+.git
+.github
+.pytest_cache
+terraform
+docs
+tests
+architecture
+__pycache__
+*.pyc
+docker-compose.yml
+docker-compose.override.yml
+README.md
+.env
