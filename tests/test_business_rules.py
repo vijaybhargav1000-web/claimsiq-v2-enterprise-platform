@@ -74,6 +74,7 @@ def test_high_priority_health_under_review():
         "CLM-2026-0005",
     }
 
+
 def test_high_risk_health_under_review_does_not_match_medium_risk():
     claim = {
         "claim_id": "CLM-2026-0002",
@@ -87,5 +88,26 @@ def test_high_risk_health_under_review_does_not_match_medium_risk():
     filters = parse_business_filters(
         "Find high risk health claims under review"
     )
+
+    assert matches_business_filters(claim, filters) is False
+
+
+def test_high_risk_health_normal_priority_does_not_match():
+    claim = {
+        "claim_id": "CLM-2026-0005",
+        "claim_type": "HEALTH",
+        "risk_level": "HIGH",
+        "processing_priority": "HIGH",
+        "status": "UNDER_REVIEW",
+        "region": "IN-EAST",
+    }
+
+    filters = parse_business_filters(
+        "Find high risk health claims with normal priority"
+    )
+
+    assert filters["claim_type"] == "HEALTH"
+    assert filters["risk_level"] == "HIGH"
+    assert filters["processing_priority"] == "NORMAL"
 
     assert matches_business_filters(claim, filters) is False

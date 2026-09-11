@@ -148,6 +148,10 @@ def parse_business_filters(question):
 
         filters["processing_priority"] = "LOW"
 
+    elif "NORMAL PRIORITY" in text:
+
+        filters["processing_priority"] = "NORMAL"
+
     # --------------------------------------------------------
     # Status
     # --------------------------------------------------------
@@ -402,9 +406,11 @@ if __name__ == "__main__":
     )
 
     print("\n" + "=" * 70)
+
     print(
         "CLAIMSIQ VERIFIED BUSINESS ANSWER"
     )
+
     print("=" * 70)
 
     print(
