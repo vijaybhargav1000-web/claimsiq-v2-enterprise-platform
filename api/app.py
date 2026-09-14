@@ -1,6 +1,11 @@
 from fastapi import FastAPI, HTTPException
 
-from api.route import AskRequest, ask_claims
+from api.route import (
+    AskRequest,
+    DecisionRequest,
+    ask_claims,
+    decide_claim,
+)
 
 
 app = FastAPI(
@@ -34,4 +39,28 @@ def ask(request: AskRequest):
         raise HTTPException(
             status_code=500,
             detail="ClaimsIQ processing failed.",
+        ) from exc
+
+
+@app.post("/decision")
+def decision(request: DecisionRequest):
+    try:
+        return decide_claim(request.claim_id)
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
+
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=str(exc),
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="ClaimsIQ decision processing failed.",
         ) from exc
