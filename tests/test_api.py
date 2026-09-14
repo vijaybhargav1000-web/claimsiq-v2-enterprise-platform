@@ -55,3 +55,29 @@ def test_audit_endpoint_contains_known_decision():
     ]
 
     assert "CLM-2026-0005" in claim_ids
+
+def test_correlation_id_is_preserved():
+    correlation_id = "claimsiq-test-001"
+
+    response = client.get(
+        "/health",
+        headers={
+            "X-Correlation-ID": correlation_id,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["X-Correlation-ID"] == correlation_id
+
+
+def test_correlation_id_is_generated_when_missing():
+    response = client.get("/health")
+
+    assert response.status_code == 200
+
+    correlation_id = response.headers.get(
+        "X-Correlation-ID"
+    )
+
+    assert correlation_id
+    assert len(correlation_id) == 36
