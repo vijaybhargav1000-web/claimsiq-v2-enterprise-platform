@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 AUDIT_DIR = Path(__file__).resolve().parents[2] / "audit"
@@ -44,3 +44,34 @@ def record_decision_audit(
         )
 
     return audit_record
+
+
+def get_decision_audit() -> List[Dict[str, Any]]:
+    """
+    Read all persisted ClaimsIQ decision audit events.
+
+    Returns an empty list when no audit file exists.
+    """
+
+    if not AUDIT_FILE.exists():
+        return []
+
+    records = []
+
+    with AUDIT_FILE.open(
+        "r",
+        encoding="utf-8",
+    ) as file:
+
+        for line in file:
+
+            line = line.strip()
+
+            if not line:
+                continue
+
+            records.append(
+                json.loads(line)
+            )
+
+    return records

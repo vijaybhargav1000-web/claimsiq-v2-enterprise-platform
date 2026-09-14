@@ -6,6 +6,7 @@ from api.route import (
     ask_claims,
     decide_claim,
 )
+from src.decisioning.audit import get_decision_audit
 
 
 app = FastAPI(
@@ -63,4 +64,21 @@ def decision(request: DecisionRequest):
         raise HTTPException(
             status_code=500,
             detail="ClaimsIQ decision processing failed.",
+        ) from exc
+
+
+@app.get("/audit")
+def audit_history():
+    try:
+        records = get_decision_audit()
+
+        return {
+            "count": len(records),
+            "records": records,
+        }
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="ClaimsIQ audit history retrieval failed.",
         ) from exc
