@@ -5,6 +5,7 @@ from typing import Any, Dict
 from pydantic import BaseModel, Field
 
 from src.claimsiq_rag_answer import ask_claimsiq
+from src.decisioning.audit import record_decision_audit
 from src.decisioning.engine import evaluate_claim
 
 
@@ -39,8 +40,9 @@ def ask_claims(question: str):
 
 def decide_claim(claim_id: str) -> Dict[str, Any]:
     """
-    Load one claim from the Gold-layer decision dataset
-    and evaluate it using the deterministic decision engine.
+    Load one claim from the Gold-layer decision dataset,
+    evaluate it using the deterministic decision engine,
+    and persist the resulting decision as an audit event.
     """
 
     if not GOLD_FILE.exists():
@@ -53,6 +55,14 @@ def decide_claim(claim_id: str) -> Dict[str, Any]:
 
     for claim in claims:
         if str(claim.get("claim_id")) == claim_id:
-            return evaluate_claim(claim)
+
+            decision_result = evaluate_claim(claim)
+
+            record_decision_audit(
+                decision_result=decision_result,
+                claim_id=claim_id,
+            )
+
+            return decision_result
 
     raise ValueError(f"Claim not found: {claim_id}")
