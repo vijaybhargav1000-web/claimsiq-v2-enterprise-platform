@@ -1,4 +1,5 @@
 import pytest
+from types import SimpleNamespace
 
 from src.claimsiq_rag_answer import ask_claimsiq
 
@@ -88,3 +89,30 @@ def test_rag_claims_from_in_east():
         "CLM-2026-0005",
         "CLM-2026-0009",
     }
+
+
+def test_rag_raises_when_opensearch_response_is_malformed(
+    monkeypatch,
+):
+    class FakeEmbeddingModel:
+        def encode(self, question):
+            return SimpleNamespace(
+                tolist=lambda: [0.0] * 384
+            )
+
+    class FakeOpenSearchClient:
+        def search(self, **kwargs):
+            return {}
+
+    monkeypatch.setattr(
+        "src.claimsiq_rag_answer.get_embedding_model",
+        lambda: FakeEmbeddingModel(),
+    )
+
+    monkeypatch.setattr(
+        "src.claimsiq_rag_answer.get_opensearch_client",
+        lambda: FakeOpenSearchClient(),
+    )
+
+    with pytest.raises(KeyError):
+        ask_claimsiq("Find claims from IN-EAST")
