@@ -300,10 +300,49 @@ def ask_claimsiq(question):
 
     client = get_opensearch_client()
 
+    # Use exact keyword filters when the question contains structured
+    # business criteria, while retaining semantic similarity for ranking.
+    structured_filters = []
+
+    filter_field_map = {
+        "claim_type": "claim_type",
+        "risk_level": "risk_level",
+        "processing_priority": "processing_priority",
+        "status": "status",
+        "region": "region",
+    }
+
+    for filter_name, field_name in filter_field_map.items():
+        value = filters.get(filter_name)
+
+        if value is not None:
+            structured_filters.append(
+                {"term": {field_name: value}}
+            )
+
+    knn_query = {
+        "knn": {
+            "embedding": {
+                "vector": query_vector,
+                "k": 10,
+            }
+        }
+    }
+
+    if structured_filters:
+        search_query = {
+            "bool": {
+                "filter": structured_filters,
+                "must": [knn_query],
+            }
+        }
+    else:
+        search_query = knn_query
+
     response = client.search(
         index=AOSS_INDEX_NAME,
         body={
-            "size": 5,
+            "size": 10,
             "_source": [
                 "claim_id",
                 "claim_text",
@@ -313,14 +352,7 @@ def ask_claimsiq(question):
                 "processing_priority",
                 "status",
             ],
-            "query": {
-                "knn": {
-                    "embedding": {
-                        "vector": query_vector,
-                        "k": 5,
-                    }
-                }
-            },
+            "query": search_query,
         },
     )
 

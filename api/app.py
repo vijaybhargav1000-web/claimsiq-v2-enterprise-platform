@@ -1,4 +1,5 @@
 import logging
+import time
 import uuid
 
 from fastapi import FastAPI, HTTPException, Request
@@ -37,6 +38,8 @@ async def correlation_id_middleware(request: Request, call_next):
     if not correlation_id:
         correlation_id = str(uuid.uuid4())
 
+    start_time = time.perf_counter()
+
     logger.info(
         "request_started method=%s path=%s correlation_id=%s",
         request.method,
@@ -47,23 +50,37 @@ async def correlation_id_middleware(request: Request, call_next):
     try:
         response = await call_next(request)
 
+        duration_ms = round(
+            (time.perf_counter() - start_time) * 1000,
+            2,
+        )
+
         response.headers["X-Correlation-ID"] = correlation_id
 
         logger.info(
-            "request_completed method=%s path=%s status_code=%s correlation_id=%s",
+            "request_completed method=%s path=%s status_code=%s "
+            "duration_ms=%s correlation_id=%s",
             request.method,
             request.url.path,
             response.status_code,
+            duration_ms,
             correlation_id,
         )
 
         return response
 
     except Exception:
+        duration_ms = round(
+            (time.perf_counter() - start_time) * 1000,
+            2,
+        )
+
         logger.exception(
-            "request_failed method=%s path=%s correlation_id=%s",
+            "request_failed method=%s path=%s "
+            "duration_ms=%s correlation_id=%s",
             request.method,
             request.url.path,
+            duration_ms,
             correlation_id,
         )
         raise
