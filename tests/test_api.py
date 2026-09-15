@@ -81,3 +81,30 @@ def test_correlation_id_is_generated_when_missing():
 
     assert correlation_id
     assert len(correlation_id) == 36
+
+def test_ask_endpoint_returns_controlled_error_when_rag_fails(monkeypatch):
+    def failing_ask_claims(question):
+        raise RuntimeError("OpenSearch unavailable")
+
+    monkeypatch.setattr(
+        "api.app.ask_claims",
+        failing_ask_claims,
+    )
+
+    response = client.post(
+        "/ask",
+        json={
+            "question": "Find high priority health claims under review"
+        },
+        headers={
+            "X-Correlation-ID": "claimsiq-rag-failure-001",
+        },
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "detail": "ClaimsIQ RAG processing failed."
+    }
+    assert response.headers["X-Correlation-ID"] == (
+        "claimsiq-rag-failure-001"
+    )
