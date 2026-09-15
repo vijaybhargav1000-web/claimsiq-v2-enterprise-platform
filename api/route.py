@@ -31,20 +31,13 @@ class DecisionRequest(BaseModel):
 
 
 def ask_claims(question: str):
-    """
-    Execute the ClaimsIQ RAG engine and return
-    the deterministic verified business result.
-    """
     return ask_claimsiq(question)
 
 
-def decide_claim(claim_id: str) -> Dict[str, Any]:
-    """
-    Load one claim from the Gold-layer decision dataset,
-    evaluate it using the deterministic decision engine,
-    and persist the resulting decision as an audit event.
-    """
-
+def decide_claim(
+    claim_id: str,
+    correlation_id: str | None = None,
+) -> Dict[str, Any]:
     if not GOLD_FILE.exists():
         raise FileNotFoundError(
             f"Gold claims dataset not found: {GOLD_FILE}"
@@ -55,12 +48,12 @@ def decide_claim(claim_id: str) -> Dict[str, Any]:
 
     for claim in claims:
         if str(claim.get("claim_id")) == claim_id:
-
             decision_result = evaluate_claim(claim)
 
             record_decision_audit(
                 decision_result=decision_result,
                 claim_id=claim_id,
+                correlation_id=correlation_id,
             )
 
             return decision_result

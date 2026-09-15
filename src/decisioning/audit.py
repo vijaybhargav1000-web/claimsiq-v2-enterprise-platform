@@ -11,6 +11,7 @@ AUDIT_FILE = AUDIT_DIR / "decisions.jsonl"
 def record_decision_audit(
     decision_result: Dict[str, Any],
     claim_id: str,
+    correlation_id: str | None = None,
 ) -> Dict[str, Any]:
     """
     Persist a ClaimsIQ decision as an audit event.
@@ -23,6 +24,7 @@ def record_decision_audit(
 
     audit_record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "correlation_id": correlation_id,
         "claim_id": claim_id,
         "decision": decision_result.get("decision"),
         "decision_version": decision_result.get("decision_version"),
