@@ -56,6 +56,7 @@ def test_audit_endpoint_contains_known_decision():
 
     assert "CLM-2026-0005" in claim_ids
 
+
 def test_correlation_id_is_preserved():
     correlation_id = "claimsiq-test-001"
 
@@ -81,6 +82,7 @@ def test_correlation_id_is_generated_when_missing():
 
     assert correlation_id
     assert len(correlation_id) == 36
+
 
 def test_ask_endpoint_returns_controlled_error_when_rag_fails(monkeypatch):
     def failing_ask_claims(question):
@@ -108,3 +110,23 @@ def test_ask_endpoint_returns_controlled_error_when_rag_fails(monkeypatch):
     assert response.headers["X-Correlation-ID"] == (
         "claimsiq-rag-failure-001"
     )
+
+
+def test_decision_endpoint_returns_404_for_unknown_claim():
+    correlation_id = "claimsiq-api-negative-001"
+
+    response = client.post(
+        "/decision",
+        json={
+            "claim_id": "CLM-DOES-NOT-EXIST"
+        },
+        headers={
+            "X-Correlation-ID": correlation_id,
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Claim not found: CLM-DOES-NOT-EXIST"
+    }
+    assert response.headers["X-Correlation-ID"] == correlation_id
