@@ -139,9 +139,16 @@ def decision(
 
 
 @app.get("/audit")
-def audit_history():
+def audit_history(claim_id: str | None = None):
     try:
         records = get_decision_audit()
+
+        if claim_id is not None:
+            records = [
+                record
+                for record in records
+                if str(record.get("claim_id")) == claim_id
+            ]
 
         return {
             "count": len(records),

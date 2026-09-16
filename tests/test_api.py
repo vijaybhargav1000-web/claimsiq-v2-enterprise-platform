@@ -57,6 +57,34 @@ def test_audit_endpoint_contains_known_decision():
     assert "CLM-2026-0005" in claim_ids
 
 
+def test_audit_endpoint_filters_by_claim_id():
+    response = client.get(
+        "/audit",
+        params={
+            "claim_id": "CLM-2026-0005",
+        },
+        headers={
+            "X-Correlation-ID": "claimsiq-audit-test-001",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["count"] == len(data["records"])
+    assert data["count"] >= 1
+
+    assert all(
+        record["claim_id"] == "CLM-2026-0005"
+        for record in data["records"]
+    )
+
+    assert response.headers["X-Correlation-ID"] == (
+        "claimsiq-audit-test-001"
+    )
+
+
 def test_correlation_id_is_preserved():
     correlation_id = "claimsiq-test-001"
 
