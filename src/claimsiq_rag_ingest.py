@@ -3,16 +3,19 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
 
-REGION = "ap-south-1"
-AOSS_HOST = "316zxmoi289705x59odi.ap-south-1.aoss.amazonaws.com"
-INDEX_NAME = "claimsiq-rag-index"
+from config.settings import (
+    AWS_REGION,
+    AOSS_HOST,
+    AOSS_INDEX_NAME,
+    EMBEDDING_MODEL,
+)
 
 df = pd.read_parquet("claimsiq-gold.parquet")
 
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+model = SentenceTransformer(EMBEDDING_MODEL)
 
 credentials = boto3.Session().get_credentials()
-auth = AWSV4SignerAuth(credentials, REGION, "aoss")
+auth = AWSV4SignerAuth(credentials, AWS_REGION, "aoss")
 
 client = OpenSearch(
     hosts=[{"host": AOSS_HOST, "port": 443}],
@@ -47,7 +50,7 @@ for _, row in df.iterrows():
     }
 
     response = client.index(
-        index=INDEX_NAME,
+        index=AOSS_INDEX_NAME,
         body=document,
     )
 

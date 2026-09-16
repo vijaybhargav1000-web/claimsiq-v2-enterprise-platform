@@ -2,21 +2,21 @@ import boto3
 from sentence_transformers import SentenceTransformer
 from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
 
-REGION = "ap-south-1"
-AOSS_HOST = "316zxmoi289705x59odi.ap-south-1.aoss.amazonaws.com"
-INDEX_NAME = "claimsiq-rag-index"
+from config.settings import (
+    AWS_REGION,
+    AOSS_HOST,
+    AOSS_INDEX_NAME,
+    EMBEDDING_MODEL,
+)
 
 QUESTION = "Find high priority health claims under review"
 
-# 1. Load the same embedding model used for the indexed claims
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+model = SentenceTransformer(EMBEDDING_MODEL)
 
-# 2. Convert the user's question into a vector
 query_vector = model.encode(QUESTION).tolist()
 
-# 3. Authenticate to OpenSearch Serverless
 credentials = boto3.Session().get_credentials()
-auth = AWSV4SignerAuth(credentials, REGION, "aoss")
+auth = AWSV4SignerAuth(credentials, AWS_REGION, "aoss")
 
 client = OpenSearch(
     hosts=[{"host": AOSS_HOST, "port": 443}],
@@ -26,9 +26,8 @@ client = OpenSearch(
     connection_class=RequestsHttpConnection,
 )
 
-# 4. Retrieve the top 3 semantically relevant claims
 response = client.search(
-    index=INDEX_NAME,
+    index=AOSS_INDEX_NAME,
     body={
         "size": 3,
         "_source": [
@@ -37,20 +36,19 @@ response = client.search(
             "claim_type",
             "region",
             "risk_level",
-            "processing_priority"
+            "processing_priority",
         ],
         "query": {
             "knn": {
                 "embedding": {
                     "vector": query_vector,
-                    "k": 3
+                    "k": 3,
                 }
             }
-        }
-    }
+        },
+    },
 )
 
-# 5. Build grounded context
 hits = response["hits"]["hits"]
 
 context_parts = []
