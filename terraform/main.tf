@@ -1,5 +1,5 @@
 module "foundation" {
-  source = "./modules/foundation"
+  source = "./modules/Foundation"
 
   project_name = "claimsiq-v2"
   environment  = var.environment
@@ -7,27 +7,27 @@ module "foundation" {
 }
 
 module "public_subnets" {
-  source = "./modules/foundation/Public Subnets"
+  source = "./modules/Foundation/Public Subnets"
 
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
 
 module "private_subnets" {
-  source = "./modules/foundation/Private Subnets"
+  source = "./modules/Foundation/Private Subnets"
 
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
 
 module "internet_gateway" {
-  source = "./modules/foundation/Internet Gateway"
+  source = "./modules/Foundation/Internet Gateway"
 
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
 module "route_tables" {
-  source = "./modules/foundation/Route Tables"
+  source = "./modules/Foundation/Route Tables"
 
   vpc_id              = module.foundation.vpc_id
   internet_gateway_id = module.internet_gateway.internet_gateway_id
@@ -38,13 +38,13 @@ module "route_tables" {
 }
 
 module "nat_gateway" {
-  source = "./modules/foundation/NAT Gateway"
+  source = "./modules/Foundation/NAT Gateway"
 
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
 module "private_route_table" {
-  source = "./modules/foundation/Private Route Table"
+  source = "./modules/Foundation/Private Route Table"
 
   vpc_id              = module.foundation.vpc_id
   nat_gateway_id      = module.nat_gateway.nat_gateway_id
@@ -54,27 +54,27 @@ module "private_route_table" {
 }
 
 module "security_groups" {
-  source = "./modules/foundation/Security Groups"
+  source = "./modules/Foundation/Security Groups"
 
   vpc_id      = module.foundation.vpc_id
   environment = var.environment
 }
 
 module "iam_role" {
-  source = "./modules/compute/IAM Role"
+  source = "./modules/Compute/IAM Role"
 
   environment = var.environment
 }
 
 module "instance_profile" {
-  source = "./modules/compute/instance-profile"
+  source = "./modules/Compute/instance-profile"
 
   ec2_role_name = module.iam_role.ec2_role_name
   environment   = var.environment
 }
 module "launch_template" {
 
-  source = "./modules/compute/launch-template"
+  source = "./modules/Compute/launch-template"
 
   environment = var.environment
 
@@ -85,7 +85,7 @@ module "launch_template" {
 
 module "target_group" {
 
-  source = "./modules/compute/target-group"
+  source = "./modules/Compute/target-group"
 
   vpc_id = module.foundation.vpc_id
 
@@ -135,7 +135,7 @@ module "auto_scaling_group" {
 
 module "s3_data_lake" {
 
-  source = "./modules/Storage/s3-data-lake"
+  source = "./modules/storage/s3-data-lake"
 
   environment = var.environment
 
@@ -143,7 +143,7 @@ module "s3_data_lake" {
 
 module "glue_catalog" {
 
-  source = "./modules/Analytics/glue-catalog"
+  source = "./modules/analytics/glue-catalog"
 
   environment = var.environment
 
@@ -151,7 +151,7 @@ module "glue_catalog" {
 
 module "glue_crawler" {
 
-  source = "./modules/Analytics/glue-crawler"
+  source = "./modules/analytics/glue-crawler"
 
   environment            = var.environment
   glue_database_name     = module.glue_catalog.glue_database_name
@@ -163,7 +163,7 @@ module "glue_crawler" {
 
 module "glue_etl_job" {
 
-  source = "./modules/Analytics/glue-etl-job"
+  source = "./modules/analytics/glue-etl-job"
 
   environment            = var.environment
   glue_role_arn          = module.glue_crawler.glue_role_arn
