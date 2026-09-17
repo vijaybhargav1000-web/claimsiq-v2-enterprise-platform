@@ -1,9 +1,20 @@
 from fastapi.testclient import TestClient
+import pytest
 
 from api.app import app
+from src.decisioning import audit
 
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def isolated_audit_file(tmp_path, monkeypatch):
+    audit_dir = tmp_path / "audit"
+    audit_file = audit_dir / "decisions.jsonl"
+
+    monkeypatch.setattr(audit, "AUDIT_DIR", audit_dir)
+    monkeypatch.setattr(audit, "AUDIT_FILE", audit_file)
 
 
 def test_health_endpoint():
@@ -19,6 +30,9 @@ def test_health_endpoint():
 
 
 def test_audit_endpoint_returns_audit_history():
+    decision_response = client.post("/decision", json={"claim_id": "CLM-2026-0005"})
+    assert decision_response.status_code == 200
+
     response = client.get("/audit")
 
     assert response.status_code == 200
@@ -42,6 +56,9 @@ def test_audit_endpoint_returns_audit_history():
 
 
 def test_audit_endpoint_contains_known_decision():
+    decision_response = client.post("/decision", json={"claim_id": "CLM-2026-0005"})
+    assert decision_response.status_code == 200
+
     response = client.get("/audit")
 
     assert response.status_code == 200
@@ -57,6 +74,12 @@ def test_audit_endpoint_contains_known_decision():
 
 
 def test_audit_endpoint_filters_by_claim_id():
+    decision_response = client.post(
+        "/decision",
+        json={"claim_id": "CLM-2026-0005"},
+    )
+    assert decision_response.status_code == 200
+
     response = client.get(
         "/audit",
         params={"claim_id": "CLM-2026-0005"},
