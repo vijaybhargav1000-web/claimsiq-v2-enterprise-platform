@@ -1,5 +1,5 @@
 output "crawler_name" {
-  value = aws_glue_crawler.bronze.name
+  value = var.enable_glue_processing ? aws_glue_crawler.bronze[0].name : null
 }
 
 output "glue_role_arn" {

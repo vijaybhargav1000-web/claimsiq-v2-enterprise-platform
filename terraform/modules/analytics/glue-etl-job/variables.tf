@@ -9,3 +9,8 @@ variable "glue_role_arn" {
 variable "scripts_bucket" {
   type = string
 }
+
+variable "enable_glue_processing" {
+  type    = bool
+  default = false
+}

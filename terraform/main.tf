@@ -153,13 +153,11 @@ module "glue_crawler" {
 
   source = "./modules/Analytics/glue-crawler"
 
-  environment = var.environment
-
-  glue_database_name = module.glue_catalog.glue_database_name
-
-  bronze_bucket = module.s3_data_lake.bronze_bucket
-
-  silver_bucket = module.s3_data_lake.silver_bucket
+  environment            = var.environment
+  glue_database_name     = module.glue_catalog.glue_database_name
+  bronze_bucket          = module.s3_data_lake.bronze_bucket
+  silver_bucket          = module.s3_data_lake.silver_bucket
+  enable_glue_processing = var.enable_glue_processing
 
 }
 
@@ -167,13 +165,12 @@ module "glue_etl_job" {
 
   source = "./modules/Analytics/glue-etl-job"
 
-  environment = var.environment
+  environment            = var.environment
+  glue_role_arn          = module.glue_crawler.glue_role_arn
+  scripts_bucket         = module.s3_data_lake.scripts_bucket
+  enable_glue_processing = var.enable_glue_processing
 
-  glue_role_arn = module.glue_crawler.glue_role_arn
-
-  scripts_bucket = module.s3_data_lake.scripts_bucket
 }
-
 module "athena" {
 
   source = "./modules/analytics/athena"
