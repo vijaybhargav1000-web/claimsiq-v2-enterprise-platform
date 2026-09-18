@@ -65,3 +65,22 @@ def test_bedrock_rag_rejects_question_over_2000_characters():
     )
 
     assert response.status_code == 422
+
+def test_bedrock_rag_returns_controlled_error_for_malformed_response(monkeypatch):
+    def malformed_retrieve_and_generate(**kwargs):
+        return {}
+
+    monkeypatch.setattr(
+        "rag.app.client.retrieve_and_generate",
+        malformed_retrieve_and_generate,
+    )
+
+    response = client.post(
+        "/ask",
+        json={"question": "Analyze claim CLM10001"},
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "detail": "ClaimsIQ Bedrock RAG processing failed."
+    }
