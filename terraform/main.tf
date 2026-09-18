@@ -122,7 +122,7 @@ module "auto_scaling_group" {
 
   environment = var.environment
 
-  launch_template_id = module.launch_template.launch_template_id
+  launch_template_id      = module.launch_template.launch_template_id
   launch_template_version = module.launch_template.launch_template_latest_version
 
   target_group_arn = module.target_group.target_group_arn
