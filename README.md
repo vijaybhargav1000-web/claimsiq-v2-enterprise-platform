@@ -1,4 +1,4 @@
-# ClaimsIQ v2 Enterprise Platform
+# ClaimsIQ v4.10 Enterprise Platform
 
 ## Overview
 
@@ -32,26 +32,26 @@ The platform follows a layered architecture that separates infrastructure, stora
 
 ```
 Developer
-     │
-     ▼
+    |
+    v
 GitHub Repository
-     │
-     ▼
+    |
+    v
 GitHub Actions
-     │
-     ▼
+    |
+    v
 Terraform
-     │
-     ▼
+    |
+    v
 AWS Infrastructure
-     │
-     ├── VPC
-     ├── EC2 Auto Scaling
-     ├── Application Load Balancer
-     ├── Amazon S3 Data Lake
-     ├── AWS Glue
-     ├── Amazon Athena
-     └── Amazon CloudWatch
+     
+      VPC
+      EC2 Auto Scaling
+      Application Load Balancer
+      Amazon S3 Data Lake
+      AWS Glue
+      Amazon Athena
+      Amazon CloudWatch
 ```
 
 ---
@@ -83,20 +83,20 @@ AWS Infrastructure
 
 ```
 ClaimsIQ-v2-Enterprise/
-│
-├── .github/
-│   └── workflows/
-├── architecture/
-├── docs/
-├── scripts/
-├── src/
-├── terraform/
-│   ├── modules/
-│   ├── scripts/
-│   └── envs/
-├── tests/
-├── README.md
-└── LICENSE
+
+ .github/
+    workflows/
+ architecture/
+ docs/
+ scripts/
+ src/
+ terraform/
+    modules/
+    scripts/
+    envs/
+ tests/
+ README.md
+ LICENSE
 ```
 
 ---
@@ -137,3 +137,5 @@ The next phase of the project will focus on extending the platform with Generati
 ## License
 
 This project is licensed under the MIT License.
+
+
