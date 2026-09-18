@@ -25,5 +25,9 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu" {
   period              = 300
   statistic           = "Average"
   threshold           = 80
+  dimensions = {
+    AutoScalingGroupName = "claimsiq-v2-asg"
+  }
 
 }
+
