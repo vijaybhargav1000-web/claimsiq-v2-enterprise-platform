@@ -16,18 +16,22 @@ client = boto3.client(
 
 question = input("Ask ClaimsIQ: ")
 
-response = client.retrieve_and_generate(
-    input={
-        "text": question
-    },
-    retrieveAndGenerateConfiguration={
-        "type": "KNOWLEDGE_BASE",
-        "knowledgeBaseConfiguration": {
-            "knowledgeBaseId": KNOWLEDGE_BASE_ID,
-            "modelArn": MODEL_ARN
+try:
+    response = client.retrieve_and_generate(
+        input={
+            "text": question
+        },
+        retrieveAndGenerateConfiguration={
+            "type": "KNOWLEDGE_BASE",
+            "knowledgeBaseConfiguration": {
+                "knowledgeBaseId": KNOWLEDGE_BASE_ID,
+                "modelArn": MODEL_ARN
+            }
         }
-    }
-)
-
-print("\nAI Answer\n")
-print(response["output"]["text"])
+    )
+    
+    print("\nAI Answer\n")
+    print(response["output"]["text"])
+except Exception as e:
+    print("\nClaimsIQ Bedrock request failed.")
+    print(e)
