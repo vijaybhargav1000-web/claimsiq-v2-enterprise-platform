@@ -118,17 +118,16 @@ ClaimsIQ-v2-Enterprise/
 
 The core AWS infrastructure and data platform have been completed.
 
-The next phase of the project will focus on extending the platform with Generative AI capabilities, including intelligent document processing, Retrieval-Augmented Generation (RAG), knowledge retrieval, and AI-assisted claims analysis.
+The platform also includes application-level Generative AI and RAG capabilities, including Amazon Bedrock Knowledge Base integration, deterministic OpenSearch retrieval, claims knowledge retrieval, and AI-assisted claims analysis.
+
+V4.10 infrastructure hardening and application RAG error handling are implemented and verified. Glue Crawler and Glue ETL processing remain disabled because of the current AWS account restriction.
 
 ---
 
 ## Future Enhancements
 
-- Amazon Bedrock integration
-- Retrieval-Augmented Generation (RAG)
+- Production deployment of the application-level GenAI/RAG components when the required AWS services and account access are available
 - Intelligent document processing
-- Claims knowledge assistant
-- Vector search
 - Multi-agent workflow orchestration
 - Automated business decision support
 
@@ -137,5 +136,6 @@ The next phase of the project will focus on extending the platform with Generati
 ## License
 
 This project is licensed under the MIT License.
+
 
 
