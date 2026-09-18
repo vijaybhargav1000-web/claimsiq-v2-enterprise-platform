@@ -1,5 +1,4 @@
-﻿from typing import Any, Dict
-
+from typing import Any, Dict
 
 DECISION_VERSION = "1.0"
 
@@ -14,6 +13,11 @@ def evaluate_claim(claim: Dict[str, Any]) -> Dict[str, Any]:
         3. REJECTED -> REJECTED
         4. APPROVED -> APPROVED
         5. Otherwise -> STANDARD_REVIEW
+
+    Motor Insurance policy rules are applied only when the claim explicitly
+    identifies itself as Motor Insurance and provides compatible source fields.
+    USD policy thresholds are not applied to claims denominated in other
+    currencies.
     """
 
     claim_id = claim.get("claim_id")
