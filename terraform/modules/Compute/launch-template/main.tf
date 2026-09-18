@@ -12,7 +12,7 @@ data "aws_ami" "amazon_linux" {
 resource "aws_launch_template" "main" {
   name        = "claimsiq-v2-lt"
   description = "V2-SSM-Enabled-Production"
-  image_id    = "ami-0a449ca57355f3459"
+  image_id    = data.aws_ami.amazon_linux.id
 
   instance_type = "t3.micro"
 

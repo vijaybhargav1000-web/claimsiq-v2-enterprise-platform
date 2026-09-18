@@ -14,7 +14,7 @@ resource "aws_autoscaling_group" "main" {
 
   launch_template {
     id      = var.launch_template_id
-    version = "2"
+    version = var.launch_template_version
   }
 
   health_check_type         = "ELB"

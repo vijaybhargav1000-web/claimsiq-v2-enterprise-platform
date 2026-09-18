@@ -13,3 +13,6 @@ variable "target_group_arn" {
 variable "private_subnet_ids" {
   type = list(string)
 }
+variable "launch_template_version" {
+  type = string
+}
