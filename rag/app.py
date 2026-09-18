@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import boto3
 
@@ -92,6 +92,7 @@ def ask_question(request: QuestionRequest):
 
     except Exception as e:
 
-        return QuestionResponse(
-            answer=f"Error: {str(e)}"
-        )
+        raise HTTPException(
+            status_code=500,
+            detail="ClaimsIQ Bedrock RAG processing failed.",
+        ) from e
