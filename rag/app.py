@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import boto3
 
 # ---------------------------------------
@@ -35,7 +35,7 @@ app = FastAPI(
 # Request Model
 # ---------------------------------------
 class QuestionRequest(BaseModel):
-    question: str
+    question: str = Field(..., min_length=1, max_length=2000)
 
 # ---------------------------------------
 # Response Model
@@ -96,3 +96,4 @@ def ask_question(request: QuestionRequest):
             status_code=500,
             detail="ClaimsIQ Bedrock RAG processing failed.",
         ) from e
+

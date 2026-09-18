@@ -48,3 +48,20 @@ def test_bedrock_rag_success(monkeypatch):
     assert response.json() == {
         "answer": "Claim requires manual review."
     }
+
+def test_bedrock_rag_rejects_empty_question():
+    response = client.post(
+        "/ask",
+        json={"question": ""},
+    )
+
+    assert response.status_code == 422
+
+
+def test_bedrock_rag_rejects_question_over_2000_characters():
+    response = client.post(
+        "/ask",
+        json={"question": "x" * 2001},
+    )
+
+    assert response.status_code == 422
