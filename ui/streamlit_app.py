@@ -282,7 +282,7 @@ with search_tab:
                 # API validation error
                 # ------------------------------------------------
 
-                elif response.status_code == 400:
+                elif response.status_code in (400, 422):
 
                     try:
 
