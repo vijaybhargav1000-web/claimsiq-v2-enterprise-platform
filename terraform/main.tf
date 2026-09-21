@@ -180,9 +180,9 @@ module "athena" {
   results_bucket = module.s3_data_lake.athena_results_bucket
 }
 module "cloudwatch" {
-
   source = "./modules/monitoring/cloudwatch"
 
-  environment = var.environment
+  environment             = var.environment
+  autoscaling_group_name = module.auto_scaling_group.asg_name
 
 }
