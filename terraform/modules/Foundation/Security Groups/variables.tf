@@ -5,3 +5,8 @@ variable "vpc_id" {
 variable "environment" {
   type = string
 }
+
+variable "ssh_cidr" {
+  type    = string
+  default = "157.50.107.186/32"
+}

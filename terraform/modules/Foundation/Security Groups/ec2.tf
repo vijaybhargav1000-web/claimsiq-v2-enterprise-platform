@@ -14,7 +14,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    cidr_blocks     = ["157.50.107.186/32"]
+    cidr_blocks     = [var.ssh_cidr]
     prefix_list_ids = ["pl-0fa83cebf909345ca"]
   }
 
