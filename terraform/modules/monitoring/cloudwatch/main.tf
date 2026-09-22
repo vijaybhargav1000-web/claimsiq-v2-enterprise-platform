@@ -23,7 +23,7 @@ resource "aws_cloudwatch_dashboard" "main" {
           view   = "timeSeries"
 
           metrics = [
-            ["AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "claimsiq-v2-asg"]
+            ["AWS/EC2", "CPUUtilization", "AutoScalingGroupName", var.autoscaling_group_name]
           ]
         }
       }
@@ -42,6 +42,6 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu" {
   threshold           = 80
 
   dimensions = {
-    AutoScalingGroupName = "claimsiq-v2-asg"
+    AutoScalingGroupName = var.autoscaling_group_name
   }
 }
